@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+{{ post.title_tag }}
+{% endblock %}
+
+{% block content %}
+<!-- current user : {{ user.id }}
+post author :{{ post.author.id }} -->
+  <h1>{{ post.title }}</h1>
+
+  <small>By {{ post.author.first_name }} |  Created on {{ post.post_date}} </small> 
+{% if user.is_authenticated %}
+{% if user.id == post.author.id %}
+  <a href="{% url 'update_post' post.pk %}">[Edit]</a> | 
+  <a href="{% url 'delete_post' post.pk %}">[Delete]</a><br>
+{% endif %}
+{% endif %}
+  <hr><br>
+  {% if post.header_image %}
+  <img src="{{ post.header_image.url }}" alt="" width="200px" height="200px">
+  {% endif %}
+  <br>
+  {{ post.body|safe }}
+  <br><br>
+  <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
+  <br><br>
+  <hr>
+  <br>
+  <form action = "{% url 'like_post' post.pk %}" method ="POST">
+    {% csrf_token %}
+    {% if user.is_authenticated %}
+    {% if liked %}
+<button type="submit" name='post_id' value ="{{ post.id }}" class = "btn btn-danger btn-sm">
+  Unlike</button>
+{% else %}
+  <button type="submit" name='post_id' value ="{{ post.id }}" class = "btn btn-primary btn-sm">
+    Like</button>
+    {% endif %}
+    {% else %}
+    <small> <a href="{% url 'login' %}">Login</a> to Like </small> 
+    {% endif %}
+-{{ total_likes }}  Likes
+</form>
+
+<br>
+<hr>
+
+<div class="card mb-3">
+  <div class="row g-0">
+    <div class="col-md-2">
+      {% if post.author.profile.profile_pic.url %}
+      <img src="{{ post.author.profile.profile_pic }}"  class="card-img" width="150px" height="150px">
+    {% else %}
+    <img src="{% static 'theblog\images\default.jpg' %}"  class="card-img" width="150px" height="150px">
+      {% endif %}
+
+    </div>
+    <div class="col-md-10">
+      <div class="card-body">
+        <h5 class="card-title">{{ post.author.first_name }} {{ post.author.last_name }}</h5>
+
+        <p class="small text-muted" > 
+    {% if post.author.profile.facebook %}
+
+      <a href="{{ post.author.profile.facebook }}"> Facebook </a>
+      |
+    {% endif %}
+
+        {% if post.author.profile.twiter %}
+          <a href="{{ post.author.profile.twiter }}"> Twiter</a>
+          | 
+        {% endif %}
+
+        {% if post.author.profile.instagram %}
+        <a href="{{ post.author.profile.instagram }}">Instagram </a>
+        | 
+        {% endif %}
+
+        {% if post.author.profile.website %}
+        <a href="{{ post.author.profile.website }}">Website</a>
+        {% endif %}
+      </p>
+        <p class="card-text">{{ post.author.profile.bio }}</p>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- <img src="{{ post.author.profile.profile_pic.url }}" alt="" width="200px" height="200px" class="rounded-circle"> -->
+  <br><br>
+  {% endblock %}
